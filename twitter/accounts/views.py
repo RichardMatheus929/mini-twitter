@@ -8,6 +8,8 @@ from rest_framework.exceptions import AuthenticationFailed, APIException
 from twitter.accounts.serializers import UserSerializer
 from twitter.accounts.models import User
 
+import re
+
 class Signin(APIView):
     def post(self, request):
 
@@ -47,10 +49,12 @@ class Signup(APIView):
         password = request.data.get('password')
 
         if not name or name == "":
-            raise APIException(
-                'O nome não deve ser nulo')
+            raise APIException('O nome não deve ser nulo')
         if not email or email == "":
             raise APIException('O email não deve ser nulo')
+        if not "@" in email or len(email) < 8:
+            raise APIException('O email é inválido ou muito curto')
+
         if not password or password == "":
             raise APIException('O password não deve ser nulo')
 
