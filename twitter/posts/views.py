@@ -1,46 +1,29 @@
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
 from twitter.posts.models import Post
 from twitter.posts.serializers import PostSerializer
 
-class PostViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
+class PostViewSet(viewsets.ModelViewSet):
 
-    def list(self, request):
-        """Listar todos os posts"""
-        posts = Post.objects.all()
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
 
-    def create(self, request):
-        """Criar um novo post"""
-        serializer = PostSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user) 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_permissions(self):
+        
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
-    def retrieve(self, request, pk=None):
-        """Buscar um post específico pelo ID"""
-        try:
-            post = Post.objects.get(pk=pk)
-        except Post.DoesNotExist:
-            return Response({'error': 'Post não encontrado'}, status=status.HTTP_404_NOT_FOUND)
+    def perform_create(self, serializer):
+        """Definições personalizadas na criação de um post."""
+        serializer.save(user=self.request.user)
 
-        serializer = PostSerializer(post)
-        return Response(serializer.data)
-
-    def destroy(self, request, pk=None):
-        """Deletar um post específico"""
-        try:
-            post = Post.objects.get(pk=pk)
-        except Post.DoesNotExist:
-            return Response({'error': 'Post não encontrado'}, status=status.HTTP_404_NOT_FOUND)
-
+    def destroy(self, request, *args, **kwargs):
+        """override no method delete."""
+        post = self.get_object()
         if post.user != request.user:
             return Response({'error': 'Você não tem permissão para deletar este post'}, status=status.HTTP_403_FORBIDDEN)
-
-        post.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        self.perform_destroy(post)
