@@ -1,7 +1,10 @@
-from twitter.posts.views import PostView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from twitter.posts.views import PostViewSet 
 
-from django.urls import path
+router = DefaultRouter()
+router.register(r'', PostViewSet, basename='post')
 
 urlpatterns = [
-    path('', PostView.as_view()),
+    path('', include(router.urls)),
 ]
