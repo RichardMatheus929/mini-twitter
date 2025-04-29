@@ -42,10 +42,7 @@ class FollowViewSet(viewsets.ViewSet):
         data = request.data
         user = request.user
 
-        user_to_follow = User.objects.filter(id=data.get('following')).first()
-        print(type(user_to_follow))
-        print(type(user))
-
+        user_to_follow = User.objects.filter(id=data.get('following')).first())
 
         if Follow.objects.filter(follower=user, following=user_to_follow).exists():
             return Response({'error': 'Você já está seguindo este usuário'}, status=400)
