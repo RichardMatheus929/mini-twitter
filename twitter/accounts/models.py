@@ -15,8 +15,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     is_active = models.BooleanField(default=True, help_text="Campo padrão necessário para o Django admin")
-    is_superuser = models.BooleanField(default=False, help_text="Campo padrão necessário para o Django admin")
-    is_staff = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False, help_text="Campo padrão necessário para o Django admin")
 
     def __str__(self) -> str:
         return self.email
