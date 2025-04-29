@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     #Apps 
     'twitter.accounts',
     'twitter.posts',
+    'twitter.follow',
 
     'rest_framework',
     
