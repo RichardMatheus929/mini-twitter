@@ -5,6 +5,8 @@ from rest_framework import serializers
 
 class PostSerializer(serializers.ModelSerializer):
 
+    user = serializers.CharField(source='user.username', read_only=True)
+
     class Meta:
         model = Post
-        fields = ['id', 'content', 'created_at']
+        fields = ['id', 'user', 'content', 'created_at']
