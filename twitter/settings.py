@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'twitter.accounts',
     'twitter.posts',
     'twitter.follow',
+    'twitter.likes',
 
     'rest_framework',
     'corsheaders',

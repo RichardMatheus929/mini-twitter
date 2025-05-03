@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
@@ -52,7 +52,7 @@ class FollowViewSet(viewsets.ViewSet):
             'follower': UserSerializer(follow.follower).data,
             'following': UserSerializer(follow.following).data,
             'start_follow': follow.start_follow
-        }, status=201)
+        }, status=status.HTTP_201_CREATED)
 
     def destroy(self, request, pk=None):
         """
@@ -69,4 +69,4 @@ class FollowViewSet(viewsets.ViewSet):
             return Response({'error': 'You do not following this user'}, status=400)
         
         Follow.objects.filter(follower=user, following=user_to_unfollow).delete()
-        return Response({'message': 'Unfollow sucess'}, status=204)
+        return Response({'message': 'Unfollow sucess'}, status=status.HTTP_204_NO_CONTENT)
