@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from twitter.likes.serializers import LikeCreateSerializer
 from twitter.likes.models import Like
 
+from django.core.cache import cache
+
 # Create your views here.
 class LikeViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
@@ -31,6 +33,9 @@ class LikeViewSet(viewsets.ViewSet):
         """
         Descurtir um post
         """
+
+        cache_key = f'post_likes_user_{pk}'
+        cache.delete(cache_key)
 
         user = request.user
 

@@ -1,4 +1,4 @@
-from twitter.accounts.models import User
+from django.core.cache import cache
 from twitter.posts.models import Post
 
 from rest_framework import serializers
@@ -12,7 +12,14 @@ class PostSerializer(serializers.ModelSerializer):
     likes_user = serializers.SerializerMethodField()
 
     def get_likes_user(self, obj):
-        return obj.likes.all().values_list("user__id", flat=True)
+        cache_key = f'post_likes_user_{obj.id}'
+        likes_ids = cache.get(cache_key)
+
+        if likes_ids is None:
+            likes_ids = list(obj.likes.all().values_list("user__id", flat=True))
+            cache.set(cache_key, likes_ids, timeout=60*5) # Mantendo o cache por 5 minutos
+
+        return likes_ids
 
     class Meta:
         model = Post

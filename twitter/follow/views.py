@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.core.cache import cache
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
@@ -20,19 +21,20 @@ class FollowViewSet(viewsets.ViewSet):
 
         user = request.user
 
-        if self.request.GET.get('users'):
+        cache_key = f'follows_data_user_{user.id}'
 
-            return Response({
-            'user': UserSerializer(user).data,
-            'followers': user.follower.all().values_list("id", flat=True),
-            'following': user.following.all().values_list("id", flat=True)
-        })
+        if cache.get(cache_key):
+            user_data = cache.get(cache_key)
+        else:
+            user_data = {
+                'user': UserSerializer(user).data,
+                'followers': user.follower.all().values_list("id", flat=True),
+                'following': user.following.all().values_list("id", flat=True)
+            }
+            cache.set(cache_key, user_data, timeout=60*5) # Mantendo o cache por 5 minutos
 
-        return Response({
-            'user': UserSerializer(user).data,
-            'followers': user.follower.all().count(),
-            'following': user.following.all().count()
-        })
+        return Response(user_data, status=status.HTTP_200_OK)
+
 
     def create(self, request):
         """
@@ -48,6 +50,10 @@ class FollowViewSet(viewsets.ViewSet):
             return Response({'error': 'Você já está seguindo este usuário'}, status=400)
 
         follow = Follow.objects.create(follower=user, following=user_to_follow)
+
+        cache_key = f'follows_data_user_{user.id}'
+        cache.delete(cache_key)
+
         return Response({
             'follower': UserSerializer(follow.follower).data,
             'following': UserSerializer(follow.following).data,
@@ -69,4 +75,8 @@ class FollowViewSet(viewsets.ViewSet):
             return Response({'error': 'You do not following this user'}, status=400)
         
         Follow.objects.filter(follower=user, following=user_to_unfollow).delete()
+
+        cache_key = f'follows_data_user_{user.id}'
+        cache.delete(cache_key)
+
         return Response({'message': 'Unfollow sucess'}, status=status.HTTP_204_NO_CONTENT)

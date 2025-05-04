@@ -2,6 +2,8 @@ from rest_framework import serializers
 from twitter.likes.models import Like
 from twitter.posts.models import Post
 
+from django.core.cache import cache
+
 class LikeCreateSerializer(serializers.ModelSerializer):
     post_id = serializers.IntegerField(write_only=True)
 
@@ -9,16 +11,22 @@ class LikeCreateSerializer(serializers.ModelSerializer):
         model = Like
         fields = ['post_id']
 
-    def validate_post_id(self, value):
+    def validate_post_id(self, post_id):
         user = self.context['request'].user
 
-        if not Post.objects.filter(id=value).exists():
+        if cache.get(f'post_likes_user_{post_id}'):
+            print("possuia cache sim")
+            cache.delete(f'post_likes_user_{post_id}') # Remove a quantidade de likes do cache
+        else:
+            print("não possuia cache")
+
+        if not Post.objects.filter(id=post_id).exists():
             raise serializers.ValidationError("Post não encontrado.")
 
-        if Like.objects.filter(user=user, post_id=value).exists():
+        if Like.objects.filter(user=user, post_id=post_id).exists():
             raise serializers.ValidationError("Você já curtiu este post.")
 
-        return value
+        return post_id
 
     def create(self, validated_data):
         user = self.context['request'].user
