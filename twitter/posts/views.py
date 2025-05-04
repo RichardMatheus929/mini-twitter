@@ -3,6 +3,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
+from django.core.cache import cache
+
 from twitter.posts.models import Post
 from twitter.posts.serializers import PostSerializer
 
@@ -24,7 +26,16 @@ class PostViewSet(viewsets.ModelViewSet):
         
         queryset = self.get_queryset()
 
-        queryset = queryset.filter(likes__user__in=request.user.following.all()).distinct()
+        cache_key = f'follows_data_user_{self.request.user.id}'
+
+        # Retorna apenas post de quem o usuário segue, pega a informação do cache
+        # se não tiver no cache, faz a query no banco
+        if users_data := cache.get(cache_key):
+            queryset = queryset.filter(user__in=users_data['following_users_id'])
+        else:
+            queryset = queryset.filter(
+                likes__user__in=request.user.follower.all().values_list("following__id", flat=True)
+            ).distinct()
         
         if self.request.GET.get('order') == "desc":
             queryset = queryset.order_by('created_at')
