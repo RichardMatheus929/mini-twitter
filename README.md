@@ -2,6 +2,23 @@
 
 Essa documentação visa explicar um pouco sobre como foi desenvolvido cada requisito, decisões técnicas e explicações gerais.
 
+## Arquitetura geral
+O projeto possui 4 apps - accounts,follow,likes,posts - Cada app possui suas lógicas de serializers, tests, models, urls, views etc...
+O painel de admin com django está configurado para os apps também, você pode entrar no container e criar um superuser para ter acesso.
+A documentação das rotas está disponível no postman enviado. Instruções sobre o frontend devem estar disponíveis no repositório: 
+https://github.com/RichardMatheus929/mini-twitter-react 
+
+## Diagrama simplificado
+![image](https://github.com/user-attachments/assets/89b90f3a-4b37-49a5-82d7-a5b2b9ab5274)
+
+accounts_user - Tabela de usários baseada no AbstractUser do django.
+
+posts_post - Armazena quem criou o post(User), data de criação, e o conteúdo em imagem do post
+
+follow_follow - Relacionada com usuários, armazena o seguidor(User) seguindo(User), também armazena a data de criação
+
+likes_like - Relaciona o user que deu like em qual post, também armazena a data de criação
+
 ## Requisitos
 
 **⚙️ [TC.1] API Development**
