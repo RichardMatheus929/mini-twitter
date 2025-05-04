@@ -23,6 +23,8 @@ class PostViewSet(viewsets.ModelViewSet):
         """
         
         queryset = self.get_queryset()
+
+        queryset = queryset.filter(likes__user__in=request.user.following.all()).distinct()
         
         if self.request.GET.get('order') == "desc":
             queryset = queryset.order_by('created_at')
