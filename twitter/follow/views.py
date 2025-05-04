@@ -28,8 +28,10 @@ class FollowViewSet(viewsets.ViewSet):
         else:
             user_data = {
                 'user': UserSerializer(user).data,
-                'followers': user.follower.all().values_list("id", flat=True),
-                'following': user.following.all().values_list("id", flat=True)
+                # Quem segue o user
+                'followers_users_id': user.follower.all().values_list("following__id", flat=True),
+                # Quem o user segue
+                'following_users_id': user.following.all().values_list("follower__id", flat=True)
             }
             cache.set(cache_key, user_data, timeout=60*5) # Mantendo o cache por 5 minutos
 
@@ -46,10 +48,10 @@ class FollowViewSet(viewsets.ViewSet):
 
         user_to_follow = User.objects.filter(id=data.get('following')).first()
 
-        if Follow.objects.filter(follower=user, following=user_to_follow).exists():
+        if Follow.objects.filter(follower=user_to_follow, following=user_to_follow).exists():
             return Response({'error': 'Você já está seguindo este usuário'}, status=400)
 
-        follow = Follow.objects.create(follower=user, following=user_to_follow)
+        follow = Follow.objects.create(follower=user_to_follow, following=user)
 
         cache_key = f'follows_data_user_{user.id}'
         cache.delete(cache_key)
@@ -67,12 +69,12 @@ class FollowViewSet(viewsets.ViewSet):
 
         user = request.user
 
-        user_to_unfollow = User.ofollowerbjects.filter(id=pk).first()
+        user_to_unfollow = User.objects.filter(id=pk)
 
-        if not user_to_unfollow:
-            return Response({'error': 'User not found'}, status=404)
+        if not user_to_unfollow.exists():
+            return Response({'error': 'Usuário não encontrado'}, status=404)
         if not Follow.objects.filter(follower=user, following=user_to_unfollow).exists():
-            return Response({'error': 'You do not following this user'}, status=400)
+            return Response({'error': 'Você não segue esse usuário'}, status=400)
         
         Follow.objects.filter(follower=user, following=user_to_unfollow).delete()
 
