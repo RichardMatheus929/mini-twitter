@@ -3,6 +3,10 @@
 Essa documentação visa explicar um pouco sobre como foi desenvolvido cada requisito, decisões técnicas e explicações gerais.
 
 ### Intruções para rodar
+Clone o repositório:
+```
+git clone https://github.com/RichardMatheus929/mini-twitter.git
+```
 Na pasta do projeto:
 ```
 docker compose up --build
