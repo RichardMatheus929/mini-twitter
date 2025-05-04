@@ -2,6 +2,15 @@
 
 Essa documentação visa explicar um pouco sobre como foi desenvolvido cada requisito, decisões técnicas e explicações gerais.
 
+### Intruções para rodar
+Na pasta do projeto:
+```
+docker compose up --build
+```
+Lembre de deixar a sessão aberta no terminal ou usar o -d
+
+**Consideração:** Não consegui resolver um problema que causa um delay na inicialização do service do db, e dá erro no container do django. Se isso acontecer, feche a sessão e rode novamente o docker compose após buildar as imagens, deve funcionar.
+
 ## Arquitetura geral
 O projeto possui 4 apps - accounts,follow,likes,posts - Cada app possui suas lógicas de serializers, tests, models, urls, views etc...
 O painel de admin com django está configurado para os apps também, você pode entrar no container e criar um superuser para ter acesso.
