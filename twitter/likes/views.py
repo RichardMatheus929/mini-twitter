@@ -21,6 +21,8 @@ class LikeViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         like = serializer.save()
 
+        cache.delete(f'post_likes_user_{like.post.id}') # Remove a quantidade de likes do cache
+
         return Response({
             'user': like.user.username,
             'post_id': like.post.id,

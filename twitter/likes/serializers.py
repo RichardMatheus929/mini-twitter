@@ -14,12 +14,6 @@ class LikeCreateSerializer(serializers.ModelSerializer):
     def validate_post_id(self, post_id):
         user = self.context['request'].user
 
-        if cache.get(f'post_likes_user_{post_id}'):
-            print("possuia cache sim")
-            cache.delete(f'post_likes_user_{post_id}') # Remove a quantidade de likes do cache
-        else:
-            print("não possuia cache")
-
         if not Post.objects.filter(id=post_id).exists():
             raise serializers.ValidationError("Post não encontrado.")
 

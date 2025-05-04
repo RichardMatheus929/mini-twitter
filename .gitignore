@@ -1,6 +1,9 @@
 # PostgresDatabase
 data/
 
+# Mídias do django
+media/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

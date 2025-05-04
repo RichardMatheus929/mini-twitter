@@ -9,7 +9,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
 
-    likes_user = serializers.SerializerMethodField()
+    likes_user = serializers.SerializerMethodField(read_only=True)
 
     def get_likes_user(self, obj):
         cache_key = f'post_likes_user_{obj.id}'
@@ -23,4 +23,4 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'user', 'content', 'created_at', 'likes_user']
+        fields = ['id', 'user', 'content', 'created_at', 'likes_user', 'image_content']
