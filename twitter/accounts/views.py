@@ -1,5 +1,7 @@
 from django.contrib.auth.hashers import check_password, make_password
 
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -77,3 +79,15 @@ class Signup(APIView):
             'user':serializer.data,
             'criado em': created_user.create_account
         })
+    
+class UsersViewSet(viewsets.ViewSet):
+
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        """
+        Listagem de usuários.
+        """
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)

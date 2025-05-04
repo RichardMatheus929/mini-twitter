@@ -16,6 +16,27 @@ class PostViewSet(viewsets.ModelViewSet):
         if self.action in ['list', 'retrieve']:
             return [AllowAny()]
         return [IsAuthenticated()]
+    
+    def list(self, request, *args, **kwargs):
+        """
+        listagem de posts.
+        """
+        
+        queryset = self.get_queryset()
+        
+        if self.request.GET.get('order') == "desc":
+            queryset = queryset.order_by('created_at')
+        else:
+            queryset = queryset.order_by('-created_at') 
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
         """Definições personalizadas na criação de um post."""
